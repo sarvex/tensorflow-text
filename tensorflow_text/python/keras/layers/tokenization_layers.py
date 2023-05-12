@@ -41,8 +41,9 @@ class TokenizerBase(tf.keras.layers.Layer):
   def __init__(self, tokenizer_instance, pad_value, squeeze_token_dim,
                **kwargs):
     if kwargs.get('dtype') is not None and kwargs.get('dtype') != 'string':
-      raise ValueError('The only valid dtype for %s is string, but got: %s' %
-                       (self.__class__.__name__, kwargs.get('dtype')))
+      raise ValueError(
+          f"The only valid dtype for {self.__class__.__name__} is string, but got: {kwargs.get('dtype')}"
+      )
     kwargs['dtype'] = 'string'
     super(TokenizerBase, self).__init__(**kwargs)
 
@@ -55,8 +56,7 @@ class TokenizerBase(tf.keras.layers.Layer):
     # in None for undefined shape axes. If using 'and !=', this causes the
     # expression to evaluate to False instead of True if the shape is undefined;
     # the expression needs to evaluate to True in that case.
-    if ((self._squeeze_token_dim) and (input_shape.ndims > 1) and
-        (not input_shape[1] == 1)):  # pylint: disable=g-comparison-negation
+    if self._squeeze_token_dim and input_shape.ndims > 1 and input_shape[1] != 1:  # pylint: disable=g-comparison-negation
       raise RuntimeError(
           '`squeeze_token_dim` should be set to False if you are calling this '
           'layer on a Tensor with inner dimension not equal to 1 (got '
@@ -88,7 +88,7 @@ class TokenizerBase(tf.keras.layers.Layer):
       Computed output shape(s).
     """
     input_shape = tf.TensorShape(input_shape).as_list()
-    shape = [dim for dim in input_shape]
+    shape = list(input_shape)
     # because the output of tokenization is ragged, the added dimension should
     # be set as None
     shape.append(None)

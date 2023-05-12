@@ -110,7 +110,7 @@ def combine_segments(segments, start_of_sequence_id, end_of_segment_id):
   end_segment_id = math_ops.cast(end_of_segment_id, segment_dtype)
   start_seq_tokens = array_ops.tile([start_sequence_id], [segments[0].nrows()])
   end_segment_tokens = array_ops.tile([end_segment_id], [segments[0].nrows()])
-  for i in range(segments[0].ragged_rank):
+  for _ in range(segments[0].ragged_rank):
     start_seq_tokens = array_ops.expand_dims(start_seq_tokens, 1)
     end_segment_tokens = array_ops.expand_dims(end_segment_tokens, 1)
   special_token_segment_template = array_ops.ones_like(start_seq_tokens)
@@ -123,8 +123,7 @@ def combine_segments(segments, start_of_sequence_id, end_of_segment_id):
   segments_combined = array_ops.concat(segments_to_combine, 1)
 
   # Create the segment ids, making sure to account for special tokens.
-  segment_ids_to_combine = []
-  segment_ids_to_combine.append(special_token_segment_template * 0)
+  segment_ids_to_combine = [special_token_segment_template * 0]
   for i, item in enumerate(segments):
     # Add segment id
     segment_id = array_ops.ones_like(item) * i

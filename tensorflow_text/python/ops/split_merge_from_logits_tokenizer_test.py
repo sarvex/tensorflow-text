@@ -57,8 +57,7 @@ def _RaggedSubstr(text_input, begin, end):
     assert begin.shape.ndims == 1
     assert text_input_flat.shape.ndims == 0
     size = math_ops.sub(end, begin)
-    new_tokens = string_ops.substr_v2(text_input_flat, begin, size)
-    return new_tokens
+    return string_ops.substr_v2(text_input_flat, begin, size)
 
 
 @test_util.run_all_in_graph_and_eager_modes
@@ -152,7 +151,7 @@ class SplitMergeFromLogitsTokenizerTest(test.TestCase):
     expected_start_offsets = [[0, 2, 12]]
     expected_end_offsets = [[1, 12, 13]]
     # Assertions below clarify what the expected offsets mean:
-    self.assertEqual(b'I', test_string[0:1])
+    self.assertEqual(b'I', test_string[:1])
 
     # Notice that the original text between the [start, end) offsets for the
     # second token differs from the token text by an extra space: this is

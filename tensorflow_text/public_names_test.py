@@ -35,17 +35,17 @@ class PublicNamesTest(test.TestCase):
   def check_names(self, module, prefix="tf_text."):
     self.assertTrue(
         hasattr(module, "_allowed_symbols"),
-        "Expected to find _allowed_symbols in %s" % prefix)
+        f"Expected to find _allowed_symbols in {prefix}",
+    )
 
-    actual_symbols = set(
-        name for name in module.__dict__ if not name.startswith("_"))
+    actual_symbols = {name for name in module.__dict__ if not name.startswith("_")}
     missing_names = set(module._allowed_symbols) - set(actual_symbols)
     extra_names = set(actual_symbols) - set(module._allowed_symbols)
 
     self.assertEqual(extra_names, set(),
-                     "Unexpected symbol(s) exported by %s" % prefix)
+                     f"Unexpected symbol(s) exported by {prefix}")
     self.assertEqual(missing_names, set(),
-                     "Missing expected symbol(s) in %s" % prefix)
+                     f"Missing expected symbol(s) in {prefix}")
 
     for (name, value) in module.__dict__.items():
       if isinstance(value, types.ModuleType) and not name.startswith("_"):

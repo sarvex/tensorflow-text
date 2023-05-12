@@ -141,7 +141,7 @@ class CompileTokenizationInfo(beam.DoFn):
     preserved_ratio = [preserved / non_unk] if non_unk else []
     dropped_ratio = [dropped / (dropped + preserved)] if (dropped +
                                                           preserved) else []
-    tokenization_info = {
+    yield {
         'lang': record['lang'],
         'count': 1,
         'num_preserved_chars': preserved,
@@ -149,9 +149,8 @@ class CompileTokenizationInfo(beam.DoFn):
         'num_non_unk_wordpieces': non_unk,
         'preserved_ratio': preserved_ratio,
         'dropped_ratio': dropped_ratio,
-        'wordpieces': wordpiece_counter
+        'wordpieces': wordpiece_counter,
     }
-    yield tokenization_info
 
 
 def default():
@@ -271,16 +270,10 @@ class CalculateMetrics(beam.DoFn):
       if wordpiece in en_wordpiece_counter:
         numerator += count
 
-    if denominator:
-      return 100.0 * numerator / denominator
-    else:
-      return None
+    return 100.0 * numerator / denominator if denominator else None
 
   def _format_float_or_none(self, value):
-    if isinstance(value, float):
-      return '{:.3f}'.format(value)
-    else:
-      return None
+    return '{:.3f}'.format(value) if isinstance(value, float) else None
 
 
 def count_preprocessing_fn(text_key, language_code_key):

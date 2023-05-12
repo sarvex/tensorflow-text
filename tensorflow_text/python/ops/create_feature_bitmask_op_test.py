@@ -112,7 +112,7 @@ class CreateFeatureBitmaskOpTest(test_util.TensorFlowTestCase):
   def test_unsupported_dtype_type(self):
     data = constant_op.constant([True, False])
     bad_dtype = dtypes.uint32
-    error_message = 'dtype must be one of: .*, was %s' % bad_dtype.name
+    error_message = f'dtype must be one of: .*, was {bad_dtype.name}'
 
     with self.assertRaisesRegexp(errors.InvalidArgumentError, error_message):
       _ = create_feature_bitmask_op.create_feature_bitmask(

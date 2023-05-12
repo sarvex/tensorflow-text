@@ -146,8 +146,7 @@ class WordpieceTokenizer(TokenizerWithOffsets, Detokenizer):
           init, num_oov_buckets=1, lookup_key_dtype=dtypes.string)
 
     if not isinstance(vocab_lookup_table, lookup_ops.LookupInterface):
-      raise TypeError(
-          'Unable to build a lookup table from {}'.format(vocab_lookup_table))
+      raise TypeError(f'Unable to build a lookup table from {vocab_lookup_table}')
 
     self._vocab_lookup_table = vocab_lookup_table
     self._suffix_indicator = suffix_indicator
@@ -157,7 +156,7 @@ class WordpieceTokenizer(TokenizerWithOffsets, Detokenizer):
         else max_chars_per_token)
     self._token_out_type = token_out_type
     self._unknown_token = unknown_token if unknown_token else '[UNK]'
-    self._use_unknown_token = True if unknown_token else False
+    self._use_unknown_token = bool(unknown_token)
     self._split_unknown_characters = split_unknown_characters
 
   def _get_vocab_and_ids(self):
@@ -387,8 +386,8 @@ class WordpieceTokenizer(TokenizerWithOffsets, Detokenizer):
     words = string_ops.reduce_join_v2(txt_tokens, axis=-1, separator=' ')
 
     # Collapse " ##" in all strings to make words.
-    words = string_ops.regex_replace(
-        words, ' ' + re.escape(self._suffix_indicator), '')
+    words = string_ops.regex_replace(words,
+                                     f' {re.escape(self._suffix_indicator)}', '')
 
     # Strip leading and trailing spaces.
     words = string_ops.regex_replace(words, '^ +| +$', '')

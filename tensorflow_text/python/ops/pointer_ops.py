@@ -213,8 +213,7 @@ def span_overlaps(source_start,
             target_limit.dtype):
       raise TypeError('source_start, source_limit, target_start, and '
                       'target_limit must all have the same dtype')
-    ndims = set(
-        [t.shape.ndims for t in span_tensors if t.shape.ndims is not None])
+    ndims = {t.shape.ndims for t in span_tensors if t.shape.ndims is not None}
     assert len(ndims) <= 1  # because of assert_same_rank statements above.
 
     if all(not isinstance(t, ragged_tensor.RaggedTensor) for t in span_tensors):
@@ -230,21 +229,20 @@ def span_overlaps(source_start,
         return _span_overlaps(source_start, source_limit, target_start,
                               target_limit, contains, contained_by,
                               partial_overlap)
-      else:
-        # Handle ragged batch dimension by recursion on values.
-        row_splits = span_tensors[0].row_splits
-        shape_checks = [
-            check_ops.assert_equal(
-                t.row_splits,
-                row_splits,
-                message='Mismatched ragged shapes for batch dimensions')
-            for t in span_tensors[1:]
-        ]
-        with ops.control_dependencies(shape_checks):
-          return ragged_tensor.RaggedTensor.from_row_splits(
-              span_overlaps(source_start.values, source_limit.values,
-                            target_start.values, target_limit.values, contains,
-                            contained_by, partial_overlap), row_splits)
+      # Handle ragged batch dimension by recursion on values.
+      row_splits = span_tensors[0].row_splits
+      shape_checks = [
+          check_ops.assert_equal(
+              t.row_splits,
+              row_splits,
+              message='Mismatched ragged shapes for batch dimensions')
+          for t in span_tensors[1:]
+      ]
+      with ops.control_dependencies(shape_checks):
+        return ragged_tensor.RaggedTensor.from_row_splits(
+            span_overlaps(source_start.values, source_limit.values,
+                          target_start.values, target_limit.values, contains,
+                          contained_by, partial_overlap), row_splits)
 
     else:
       # Mix of dense and ragged tensors.
@@ -583,5 +581,5 @@ def _multivalent_span_alignment(overlaps):
 def _check_type(value, name, expected_type):
   """Raises TypeError if not isinstance(value, expected_type)."""
   if not isinstance(value, expected_type):
-    raise TypeError('%s must be %s, not %s' % (name, expected_type.__name__,
-                                               type(value).__name__))
+    raise TypeError(
+        f'{name} must be {expected_type.__name__}, not {type(value).__name__}')

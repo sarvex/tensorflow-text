@@ -107,14 +107,11 @@ class HubModuleSplitter(SplitterWithOffsets):
       # for tokenization, hence the 'token'-heavy string literals:
       pieces = output_dict['tokens']
       num_pieces = output_dict['num_tokens']
-      starts = output_dict['starts']
-      ends = output_dict['ends']
     else:
       pieces = output_dict['pieces']
       num_pieces = output_dict['num_pieces']
-      starts = output_dict['starts']
-      ends = output_dict['ends']
-
+    ends = output_dict['ends']
+    starts = output_dict['starts']
     pieces = ragged_tensor.RaggedTensor.from_row_lengths(
         pieces, row_lengths=num_pieces)
     starts = ragged_tensor.RaggedTensor.from_row_lengths(

@@ -90,7 +90,5 @@ def bert_vocab_from_dataset(dataset,
   words_dataset = dataset.map(tokenizer.tokenize)
   word_counts = learner.count_words(words_dataset)
 
-  vocab = learner.learn(word_counts, vocab_size, reserved_tokens,
-                        **learn_params)
-
-  return vocab
+  return learner.learn(word_counts, vocab_size, reserved_tokens,
+                       **learn_params)

@@ -50,12 +50,11 @@ class Trimmer(metaclass=abc.ABCMeta):
       segments = [ragged_tensor.convert_to_tensor_or_ragged_tensor(s)
                   for s in segments]
       truncate_masks = self.generate_mask(segments)
-      truncated_segments = [
+      return [
           ragged_array_ops.boolean_mask(
               seg, mask.with_row_splits_dtype(seg.row_splits.dtype))
           for seg, mask in zip(segments, truncate_masks)
       ]
-      return truncated_segments
 
   @abc.abstractmethod
   def generate_mask(self, segments):

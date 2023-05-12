@@ -145,7 +145,7 @@ def sliding_window(data, width, axis=-1, name=None):
 
     slices = []
     for start in range(width):
-      stop = None if start - width + 1 == 0 else start - width + 1
+      stop = None if start - width == -1 else start - width + 1
       if axis >= 0:
         idx = [slice(None)] * axis + [slice(start, stop)]
       else:

@@ -69,7 +69,7 @@ def pad_along_dimension(data, axis=-1, left_pad=None, right_pad=None,
   data = ragged_tensor.convert_to_tensor_or_ragged_tensor(data, name="data")
 
   if not isinstance(axis, int):
-    raise TypeError("axis must be an int; got %s" % type(axis).__name__)
+    raise TypeError(f"axis must be an int; got {type(axis).__name__}")
 
   if left_pad is None and right_pad is None:
     return data
@@ -93,10 +93,7 @@ def pad_along_dimension(data, axis=-1, left_pad=None, right_pad=None,
     right_padding = _padding_for_dimension(data, axis, right_pad)
 
     pieces = [left_padding, data, right_padding]
-    if isinstance(data, ragged_tensor.RaggedTensor):
-      return array_ops.concat([p for p in pieces if p is not None], axis)
-    else:
-      return array_ops.concat([p for p in pieces if p is not None], axis)
+    return array_ops.concat([p for p in pieces if p is not None], axis)
 
 
 def _get_positive_axis(axis, ndims):

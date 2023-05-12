@@ -91,7 +91,7 @@ class ToDense(tf.keras.layers.Layer):  # pylint: disable=g-classes-have-attribut
       if self._shape is not None:
         outputs = tf.ensure_shape(outputs, shape=self._shape)
     else:
-      raise TypeError('Unexpected tensor type %s' % type(inputs).__name__)
+      raise TypeError(f'Unexpected tensor type {type(inputs).__name__}')
 
     if self._mask:
       outputs = self.masking_layer(outputs)

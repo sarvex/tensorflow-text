@@ -110,13 +110,7 @@ def create_feature_bitmask(tensor, dtype=dtypes.int32, name=None):
       bit_masks = constant_op.constant(
           [2**pos for pos in range(_max_bits[dtype] - 1, -1, -1)], dtype)
       num_bits = array_ops.shape(tensor)[-1]
-      with ops.control_dependencies([
-          check_ops.assert_less_equal(
-              num_bits,
-              _max_bits[dtype],
-              message='data.shape[-1] is too large for %s (cannot exceed %s)' %
-              (dtype.name, _max_bits[dtype]))
-      ]):
+      with ops.control_dependencies([check_ops.assert_less_equal(num_bits, _max_bits[dtype], message=f'data.shape[-1] is too large for {dtype.name} (cannot exceed {_max_bits[dtype]})')]):
         # The second slice ("[:num_bits]") is a no-op unless num_bits==0.
         bit_masks = bit_masks[-num_bits:][:num_bits]
     return math_ops.reduce_sum(integer_data * bit_masks, axis=-1)

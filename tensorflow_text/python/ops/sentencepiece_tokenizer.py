@@ -152,11 +152,11 @@ class SentencepieceTokenizer(TokenizerWithOffsets, Detokenizer):
                   self._model_resource.resource_handle, input_tensor,
                   self.nbest_size, self.alpha, self.add_bos, self.add_eos,
                   self.reverse, self.out_type, return_nbest=self.return_nbest))
-          tokens = RaggedTensor.from_nested_row_splits(
+          return RaggedTensor.from_nested_row_splits(
               flat_values=output_values,
               nested_row_splits=[row_splits],
-              validate=False)
-          return tokens
+              validate=False,
+          )
 
   def tokenize_with_offsets(self, input, name=None):  # pylint: disable=redefined-builtin
     """Tokenizes a tensor of UTF-8 strings.
@@ -269,9 +269,8 @@ class SentencepieceTokenizer(TokenizerWithOffsets, Detokenizer):
           # Convert the input tensor to ragged and process it.
           return self.detokenize(
               ragged_conversion_ops.from_tensor(input_tensor))
-        else:
-          tokens = self.detokenize(array_ops.stack([input_tensor]))
-          return array_ops.reshape(tokens, [])
+        tokens = self.detokenize(array_ops.stack([input_tensor]))
+        return array_ops.reshape(tokens, [])
 
   def vocab_size(self, name=None):
     """Returns the vocabulary size.

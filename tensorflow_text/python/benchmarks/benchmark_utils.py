@@ -133,8 +133,9 @@ class OpsBaseBenchmark(benchmark.Benchmark):
         iters,
         burn_iters,
         xprof_enabled,
-        benchmark_name=self._get_method_name() + '_ragged',
-        **kwargs)
+        benchmark_name=f'{self._get_method_name()}_ragged',
+        **kwargs,
+    )
 
     self.input_data = ragged_data.to_tensor()
     self.run_and_report(
@@ -142,8 +143,9 @@ class OpsBaseBenchmark(benchmark.Benchmark):
         iters,
         burn_iters,
         xprof_enabled,
-        benchmark_name=self._get_method_name() + '_dense',
-        **kwargs)
+        benchmark_name=f'{self._get_method_name()}_dense',
+        **kwargs,
+    )
 
     self.load_input_data(self.batch_size)
 
@@ -187,7 +189,7 @@ class OpsBaseBenchmark(benchmark.Benchmark):
     metrics = []
     extras = {'sec_per_batch': total_time / iters}
     if hasattr(self, 'batch_number'):
-      extras.update({'batches_per_sec': self.batch_number / mean_time})
+      extras['batches_per_sec'] = self.batch_number / mean_time
       metrics.append({
           'name': 'batches_per_sec',
           'value': self.batch_number / mean_time
@@ -203,13 +205,10 @@ class OpsBaseBenchmark(benchmark.Benchmark):
         metrics=metrics)
 
   def _run_with_xprof(self, benchmark_fn):
-    output = {}
     xprof = xprof_session.XprofSession()
     xprof.start_session(enable_python_tracer=True)
     _ = benchmark_fn()
-    output['xprof_link'] = xprof.end_session_and_get_url()
-
-    return output
+    return {'xprof_link': xprof.end_session_and_get_url()}
 
   def _run_and_report_graphmode(self, fn, iters, burn_iters, benchmark_name,
                                 xprof_enabled, **kwargs):
@@ -249,7 +248,7 @@ class OpsBaseBenchmark(benchmark.Benchmark):
 
       metrics = []
       if hasattr(self, 'batch_number'):
-        extras.update({'batches_per_sec': self.batch_number / mean_time})
+        extras['batches_per_sec'] = self.batch_number / mean_time
         metrics.append({
             'name': 'batches_per_sec',
             'value': self.batch_number / mean_time
@@ -260,6 +259,7 @@ class OpsBaseBenchmark(benchmark.Benchmark):
 
       self.report_benchmark(
           wall_time=mean_time,
-          name=benchmark_name + '_graph',
+          name=f'{benchmark_name}_graph',
           extras=extras,
-          metrics=metrics)
+          metrics=metrics,
+      )

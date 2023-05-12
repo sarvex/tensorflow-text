@@ -54,7 +54,7 @@ def max_spanning_tree_gradient(mst_op, d_loss_d_max_scores, *_):
   """
   dtype = d_loss_d_max_scores.dtype.base_dtype
   if dtype is None:
-    raise errors.InvalidArgumentError("Expected (%s) is not None" % dtype)
+    raise errors.InvalidArgumentError(f"Expected ({dtype}) is not None")
 
   argmax_sources_bxm = mst_op.outputs[1]
   input_dim = array_ops.shape(argmax_sources_bxm)[1]  # M in the docstring

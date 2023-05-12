@@ -119,7 +119,7 @@ def _emoji_regex():
       u"\U0001fad0", "-", u"\U0001fad6",
       "]"
   ])  # pyformat:disable
-  return ".*" + char_class + ".*"
+  return f".*{char_class}.*"
 
 
 def _begins_with_open_quote_regex():
@@ -129,7 +129,7 @@ def _begins_with_open_quote_regex():
       u"\u201c", u"\u00ab", u"\u201e", u"\u201f" + u"\u2039", u"\u300c",
       u"\u300e", u"\u301d", u"\u2e42" + u"\uff62", u"\ufe41", u"\ufe43"
   ])
-  return "``.*|[" + char_class + "][^" + char_class + "]*"
+  return f"``.*|[{char_class}][^{char_class}]*"
 
 
 def _ends_with_close_quote_regex():
@@ -139,7 +139,7 @@ def _ends_with_close_quote_regex():
       u"\ufe44", u"\uff63"
   ])
 
-  return ".*''|[^" + char_class + "]*[" + char_class + "]"
+  return f".*''|[^{char_class}]*[{char_class}]"
 
 
 class WordShape(enum.Enum):
@@ -165,8 +165,8 @@ class WordShape(enum.Enum):
   # ENDS_WITH_MULTIPLE_TERMINAL_PUNCT = r".*[\p{Terminal_Punctuation}]{2}"
   ENDS_WITH_ELLIPSIS = r".*(\.{3}|[" + u"\u2026" + u"\u22ef" + "])"
   IS_EMOTICON = _emoticon_regex()
-  ENDS_WITH_EMOTICON = r".*(" + _emoticon_regex() + r")$"
-  HAS_EMOJI = r".*(" + _emoji_regex() + r")$"
+  ENDS_WITH_EMOTICON = f".*({_emoticon_regex()})$"
+  HAS_EMOJI = f".*({_emoji_regex()})$"
   IS_ACRONYM_WITH_PERIODS = r"(\p{Lu}\.)+"
   IS_UPPERCASE = r"\p{Lu}+"
   IS_LOWERCASE = r"\p{Ll}+"
@@ -182,6 +182,9 @@ class WordShape(enum.Enum):
   HAS_CURRENCY_SYMBOL = r".*\p{Sc}.*"
   HAS_NON_LETTER = r".*\P{L}.*"
 
+
+# Note that the entries in _wordshape_doc must be indented 10 spaces to display
+# correctly in the docstring.
 
 # Note that the entries in _wordshape_doc must be indented 10 spaces to display
 # correctly in the docstring.
@@ -362,7 +365,7 @@ _wordshape_doc = {
 
 
 def _add_identifier_list_to_docstring(func):
-  items = [("WordShape." + ws.name, doc) for ws, doc in _wordshape_doc.items()]
+  items = [(f"WordShape.{ws.name}", doc) for ws, doc in _wordshape_doc.items()]
   identifier_list = "".join(
       "\n        * `%s`:%s\n" % (name, doc) for (name, doc) in sorted(items))
   func.__doc__ = func.__doc__ % dict(identifier_list=identifier_list)

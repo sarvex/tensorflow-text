@@ -41,7 +41,7 @@ class SlidingWindowOpTest(test_util.TensorFlowTestCase, parameterized.TestCase):
     self.assertAllEqual(
         output, [[b'one', b'two', b'three'], [b'two', b'three', b'four'],
                  [b'three', b'four', b'five'], [b'four', b'five', b'six']])
-    self.assertEqual('Shape: %s -> %s' % (data.shape, output.shape),
+    self.assertEqual(f'Shape: {data.shape} -> {output.shape}',
                      'Shape: (6,) -> (4, 3)')
 
     # Sliding window (width=2) across the inner dimension of a ragged matrix
@@ -56,8 +56,9 @@ class SlidingWindowOpTest(test_util.TensorFlowTestCase, parameterized.TestCase):
         [[b'Away', b'to'], [b'to', b'outer'], [b'outer', b'space']]
     ])  # pyformat: disable
     self.assertEqual(
-        'Shape: %s -> %s' % (data.shape.as_list(), output.shape.as_list()),
-        'Shape: [3, None] -> [3, None, 2]')
+        f'Shape: {data.shape.as_list()} -> {output.shape.as_list()}',
+        'Shape: [3, None] -> [3, None, 2]',
+    )
 
     # Sliding window across the second dimension of a 3-D tensor containing
     # batches of sequences of embedding vectors:
@@ -71,8 +72,10 @@ class SlidingWindowOpTest(test_util.TensorFlowTestCase, parameterized.TestCase):
                           [[3, 3, 1], [4, 4, 1]], [[4, 4, 1], [5, 5, 1]]],
                          [[[1, 1, 2], [2, 2, 2]], [[2, 2, 2], [3, 3, 2]],
                           [[3, 3, 2], [4, 4, 2]], [[4, 4, 2], [5, 5, 2]]]])
-    self.assertEqual('Shape: %s -> %s' % (data.shape, output.shape),
-                     'Shape: (2, 5, 3) -> (2, 4, 2, 3)')
+    self.assertEqual(
+        f'Shape: {data.shape} -> {output.shape}',
+        'Shape: (2, 5, 3) -> (2, 4, 2, 3)',
+    )
 
   def _test_sliding_window_op(self, expected_result, data, width, axis):
     result = sliding_window_op.sliding_window(data, width, axis)

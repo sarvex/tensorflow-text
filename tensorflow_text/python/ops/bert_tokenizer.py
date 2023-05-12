@@ -133,10 +133,8 @@ class BasicTokenizer(TokenizerWithOffsets):
     # lowercase and strip accents (if option is set)
     if self._lower_case:
       text_input = self.lower_case(text_input)
-    else:
-      # utf8 normalization
-      if self._normalization_form is not None:
-        text_input = normalize_utf8(text_input, self._normalization_form)
+    elif self._normalization_form is not None:
+      text_input = normalize_utf8(text_input, self._normalization_form)
 
     # strip out control characters
     text_input = string_ops.regex_replace(text_input, r"\p{Cc}|\p{Cf}", " ")

@@ -35,7 +35,7 @@ def _MakeTestTensor(shape, prefix=b'v'):
   if not shape:
     return prefix
   return [
-      _MakeTestTensor(shape[1:], b'%s%s' % (prefix, ('%s' % i).encode('ascii')))
+      _MakeTestTensor(shape[1:], b'%s%s' % (prefix, f'{i}'.encode('ascii')))
       for i in range(shape[0])
   ]
 
@@ -110,7 +110,7 @@ class GatherWithDefaultOpTest(test_util.TensorFlowTestCase,
     expected = constant_op.constant(expected, shape=expected_shape)
     self.assertAllEqual(gathered, expected)
     # When there are no -1 indices, check that behavior matches tf.gather.
-    if not any(i == -1 for i in indices):
+    if all(i != -1 for i in indices):
       self.assertAllEqual(gathered, array_ops.gather(params_t, indices_t))
 
   @parameterized.parameters(
@@ -140,7 +140,7 @@ class GatherWithDefaultOpTest(test_util.TensorFlowTestCase,
     expected = constant_op.constant(expected, shape=expected_shape)
     self.assertAllEqual(gathered, expected)
     # When there are no -1 indices, check that behavior matches tf.gather.
-    if not any(i == -1 for index_row in indices for i in index_row):
+    if all(i != -1 for index_row in indices for i in index_row):
       self.assertAllEqual(gathered, array_ops.gather(params_t, indices_t))
 
   def testAxisGreaterThan0(self):

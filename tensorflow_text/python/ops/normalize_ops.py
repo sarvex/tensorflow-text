@@ -60,11 +60,10 @@ def case_fold_utf8(input, name=None):
   with ops.name_scope(name, "CaseFoldUTF8", [input]):
     input_tensor = ragged_tensor.convert_to_tensor_or_ragged_tensor(
         input, dtype=dtypes.string)
-    if ragged_tensor.is_ragged(input_tensor):
-      result = gen_normalize_ops.case_fold_utf8(input_tensor.flat_values)
-      return input_tensor.with_flat_values(result)
-    else:
+    if not ragged_tensor.is_ragged(input_tensor):
       return gen_normalize_ops.case_fold_utf8(input_tensor)
+    result = gen_normalize_ops.case_fold_utf8(input_tensor.flat_values)
+    return input_tensor.with_flat_values(result)
 
 
 # pylint: disable=redefined-builtin)
@@ -94,12 +93,11 @@ def normalize_utf8(input, normalization_form="NFKC", name=None):
   with ops.name_scope(name, "NormalizeUTF8", [input]):
     input_tensor = ragged_tensor.convert_to_tensor_or_ragged_tensor(
         input, dtype=dtypes.string)
-    if ragged_tensor.is_ragged(input_tensor):
-      result = gen_normalize_ops.normalize_utf8(input_tensor.flat_values,
-                                                normalization_form)
-      return input_tensor.with_flat_values(result)
-    else:
+    if not ragged_tensor.is_ragged(input_tensor):
       return gen_normalize_ops.normalize_utf8(input_tensor, normalization_form)
+    result = gen_normalize_ops.normalize_utf8(input_tensor.flat_values,
+                                              normalization_form)
+    return input_tensor.with_flat_values(result)
 
 
 # pylint: disable=redefined-builtin)
@@ -145,14 +143,13 @@ def normalize_utf8_with_offsets_map(input,
   with ops.name_scope(name, "NormalizeUTF8WithOffsets", [input]):
     input_tensor = ragged_tensor.convert_to_tensor_or_ragged_tensor(
         input, dtype=dtypes.string)
-    if ragged_tensor.is_ragged(input_tensor):
-      result, offsets_map = gen_normalize_ops.normalize_utf8_with_offsets_map(
-          input_tensor.flat_values, normalization_form)
-      return input_tensor.with_flat_values(
-          result), input_tensor.with_flat_values(offsets_map)
-    else:
+    if not ragged_tensor.is_ragged(input_tensor):
       return gen_normalize_ops.normalize_utf8_with_offsets_map(
           input_tensor, normalization_form)
+    result, offsets_map = gen_normalize_ops.normalize_utf8_with_offsets_map(
+        input_tensor.flat_values, normalization_form)
+    return input_tensor.with_flat_values(
+        result), input_tensor.with_flat_values(offsets_map)
 
 
 # pylint: disable=redefined-builtin)

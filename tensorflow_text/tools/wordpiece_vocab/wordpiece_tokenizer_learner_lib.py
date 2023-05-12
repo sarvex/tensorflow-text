@@ -137,12 +137,12 @@ def get_search_threshs(word_counts, upper_thresh, lower_thresh):
   if upper_thresh is None:
     upper_search = max_count
   else:
-    upper_search = max_count if max_count < upper_thresh else upper_thresh
+    upper_search = min(max_count, upper_thresh)
 
   if lower_thresh is None:
     lower_search = min_count
   else:
-    lower_search = min_count if min_count > lower_thresh else lower_thresh
+    lower_search = max(min_count, lower_thresh)
 
   return upper_search, lower_search
 
@@ -159,14 +159,8 @@ def get_input_words(word_counts, reserved_tokens, max_token_length):
     list of (string, int) tuples of filtered wordcounts
   """
 
-  all_counts = []
-
-  for word, count in word_counts:
-    if len(word) > max_token_length or word in reserved_tokens:
-      continue
-    all_counts.append((word, count))
-
-  return all_counts
+  return [(word, count) for word, count in word_counts
+          if len(word) <= max_token_length and word not in reserved_tokens]
 
 
 def get_allowed_chars(all_counts, max_unique_chars):
@@ -195,10 +189,10 @@ def get_allowed_chars(all_counts, max_unique_chars):
   sorted_counts = sorted(sorted(char_counts.items(), key=lambda x: x[0]),
                          key=lambda x: x[1], reverse=True)
 
-  allowed_chars = set()
-  for i in range(min(len(sorted_counts), max_unique_chars)):
-    allowed_chars.add(sorted_counts[i][0])
-  return allowed_chars
+  return {
+      sorted_counts[i][0]
+      for i in range(min(len(sorted_counts), max_unique_chars))
+  }
 
 
 def filter_input_words(all_counts, allowed_chars, max_input_tokens):
@@ -221,11 +215,7 @@ def filter_input_words(all_counts, allowed_chars, max_input_tokens):
     if (max_input_tokens != -1 and
         len(filtered_counts) >= max_input_tokens):
       break
-    has_unallowed_chars = False
-    for char in word:
-      if char not in allowed_chars:
-        has_unallowed_chars = True
-        break
+    has_unallowed_chars = any(char not in allowed_chars for char in word)
     if has_unallowed_chars:
       continue
     filtered_counts.append((word, count))
@@ -253,9 +243,7 @@ def generate_final_vocabulary(reserved_tokens, char_tokens, curr_tokens):
   # Sort by count, then alphabetically.
   sorted_tokens = sorted(sorted(curr_tokens.items(), key=lambda x: x[0]),
                          key=lambda x: x[1], reverse=True)
-  for token, _ in sorted_tokens:
-    vocab_char_arrays.append(token)
-
+  vocab_char_arrays.extend(token for token, _ in sorted_tokens)
   seen_tokens = set()
   # Adding unique tokens to list to maintain sorted order.
   vocab_words = []
@@ -287,7 +275,7 @@ def learn_with_thresh(word_counts, thresh, params):
                                         params.joiner)
 
   for iteration in range(params.num_iterations):
-    subtokens = [dict() for _ in range(params.max_token_length + 1)]
+    subtokens = [{} for _ in range(params.max_token_length + 1)]
     # Populate array with counts of each subtoken.
     for word, count in word_counts:
       if iteration == 0:
@@ -324,12 +312,12 @@ def learn_with_thresh(word_counts, thresh, params):
         if len(token) > length:  # This token includes the joiner.
           joiner_len = len(params.joiner)
           for i in range(1 + joiner_len, length + joiner_len):
-            prefix = token[0:i]
+            prefix = token[:i]
             if prefix in subtokens[i - joiner_len]:
               subtokens[i - joiner_len][prefix] -= count
         else:
           for i in range(1, length):
-            prefix = token[0:i]
+            prefix = token[:i]
             if prefix in subtokens[i]:
               subtokens[i][prefix] -= count
 
@@ -338,10 +326,8 @@ def learn_with_thresh(word_counts, thresh, params):
                                           params.include_joiner_token,
                                           params.joiner)
 
-  vocab_words = generate_final_vocabulary(params.reserved_tokens, char_tokens,
-                                          curr_tokens)
-
-  return vocab_words
+  return generate_final_vocabulary(params.reserved_tokens, char_tokens,
+                                   curr_tokens)
 
 
 def learn_binary_search(word_counts, lower, upper, params):
@@ -366,9 +352,7 @@ def learn_binary_search(word_counts, lower, upper, params):
 
   # Allow count to be within k% of the target count, where k is slack ratio.
   slack_count = params.slack_ratio * params.vocab_size
-  if slack_count < 0:
-    slack_count = 0
-
+  slack_count = max(slack_count, 0)
   is_within_slack = (current_vocab_size <= params.vocab_size) and (
       params.vocab_size - current_vocab_size <= slack_count)
 
@@ -393,7 +377,7 @@ def count_words(iterable) -> collections.Counter:
     words = getattr(words, 'flat_values', words)
     # Flatten any dense tensor
     words = np.reshape(words, [-1])
-    counts.update(words)
+    counts |= words
 
   # Decode the words if necessary.
   example_word = next(iter(counts.keys()))
@@ -462,7 +446,5 @@ def learn(word_counts,
   filtered_counts = filter_input_words(all_counts, allowed_chars,
                                        params.max_input_tokens)
 
-  vocab = learn_binary_search(filtered_counts, lower_search, upper_search,
-                              params)
-
-  return vocab
+  return learn_binary_search(filtered_counts, lower_search, upper_search,
+                             params)

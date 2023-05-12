@@ -166,9 +166,7 @@ class CustomInputTokenizationBenchmark(benchmark_utils.OpsBaseBenchmark):
   def _get_char_level_splits(self):
     """Get splits that match inputs char level."""
     char_tokenizer = text_ops.UnicodeCharTokenizer()
-    char_splits = array_ops.zeros_like(char_tokenizer.tokenize(self.input_data))
-
-    return char_splits
+    return array_ops.zeros_like(char_tokenizer.tokenize(self.input_data))
 
   def benchmark_split_merge_tokenizer(self):
     if FLAGS.ragged_vs_dense:

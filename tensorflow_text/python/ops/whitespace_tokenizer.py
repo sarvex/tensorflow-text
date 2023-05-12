@@ -119,19 +119,18 @@ class WhitespaceTokenizer(TokenizerWithOffsets):
           return (input_tensor.with_values(tokens),
                   input_tensor.with_values(starts),
                   input_tensor.with_values(ends))
+      elif input_tensor.shape.ndims > 1:
+        # Convert the input tensor to ragged and process it.
+        return self.tokenize_with_offsets(
+            ragged_conversion_ops.from_tensor(input_tensor))
+      elif input_tensor.shape.ndims == 0:
+        (tokens, starts, ends) = self.tokenize_with_offsets(
+            array_ops.stack([input_tensor]))
+        return tokens.values, starts.values, ends.values
       else:
-        if input_tensor.shape.ndims > 1:
-          # Convert the input tensor to ragged and process it.
-          return self.tokenize_with_offsets(
-              ragged_conversion_ops.from_tensor(input_tensor))
-        elif input_tensor.shape.ndims == 0:
-          (tokens, starts, ends) = self.tokenize_with_offsets(
-              array_ops.stack([input_tensor]))
-          return tokens.values, starts.values, ends.values
-        else:
-          # Our rank 1 tensor is the correct shape, so we can process it as
-          # normal.
-          return self._whitespace_tokenize_with_offsets(input_tensor)
+        # Our rank 1 tensor is the correct shape, so we can process it as
+        # normal.
+        return self._whitespace_tokenize_with_offsets(input_tensor)
 
   def _whitespace_tokenize_with_offsets(self, input_tensor):
     """Tokenizes a tensor of codepoints with rank of 1.

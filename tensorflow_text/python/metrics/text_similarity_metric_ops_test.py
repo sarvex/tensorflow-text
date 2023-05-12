@@ -295,10 +295,7 @@ class TextSimilarityMetricOpsTest(test_util.TensorFlowTestCase,
     self.assertAllClose(forward.p_measure, expected_p_measures, atol=1e-3)
     self.assertAllClose(forward.r_measure, expected_r_measures, atol=1e-3)
     # Reverse alpha.
-    if alpha is None or alpha < 0:
-      reverse_alpha = alpha
-    else:
-      reverse_alpha = 1 - alpha
+    reverse_alpha = alpha if alpha is None or alpha < 0 else 1 - alpha
     # Now pass the arguments in reverse.
     reverse = text_similarity_metric_ops.rouge_l(tokens_ref, tokens_hyp,
                                                  alpha=reverse_alpha)

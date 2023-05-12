@@ -109,16 +109,14 @@ def ngrams(data,
     # TODO(b/122967921): Lift this restriction after ragged_reduce_join is done.
     if reduction_type is Reduction.STRING_JOIN and axis != -1:
       raise errors.InvalidArgumentError(
-          None, None, "%s requires that ngrams' 'axis' parameter be -1." %
-          Reduction.STRING_JOIN.name)
+          None,
+          None,
+          f"{Reduction.STRING_JOIN.name} requires that ngrams' 'axis' parameter be -1.",
+      )
 
     windowed_data = sliding_window(data, width, axis)
 
-    if axis < 0:
-      reduction_axis = axis
-    else:
-      reduction_axis = axis + 1
-
+    reduction_axis = axis if axis < 0 else axis + 1
     # Ragged reduction ops work on both Tensor and RaggedTensor, so we can
     # use them here regardless of the type of tensor in 'windowed_data'.
     if reduction_type is Reduction.SUM:

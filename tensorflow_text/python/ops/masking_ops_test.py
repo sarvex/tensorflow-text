@@ -92,13 +92,12 @@ class AlwaysRandomValuesChooser(masking_ops.MaskValuesChooser):
       flat_mask_values = array_ops.tile(
           array_ops.expand_dims(self._random_token, -1),
           array_ops.shape(masked_lm_ids.flat_values))
-      flat_mask_values = math_ops.cast(flat_mask_values, dtypes.int64)
     else:
       # Give them all [MASK] values.
       flat_mask_values = array_ops.tile(
           array_ops.expand_dims(self.mask_token, -1),
           array_ops.shape(masked_lm_ids.flat_values))
-      flat_mask_values = math_ops.cast(flat_mask_values, dtypes.int64)
+    flat_mask_values = math_ops.cast(flat_mask_values, dtypes.int64)
     return masked_lm_ids.with_flat_values(flat_mask_values)
 
 

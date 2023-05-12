@@ -86,15 +86,14 @@ class SentencepieceTokenizerOpTest(test_util.TensorFlowTestCase,
     elif self.out_type == dtypes.int32:
       bos = 1
       eos = 2
-    if not isinstance(expected[0], list):
-      if self.add_bos:
-        expected = [bos] + expected
-      if self.add_eos:
-        expected = expected + [eos]
-      if self.reverse:
-        expected = [x for x in reversed(expected)]
-    else:
+    if isinstance(expected[0], list):
       return [self.transformExpected(x) for x in expected]
+    if self.add_bos:
+      expected = [bos] + expected
+    if self.add_eos:
+      expected = expected + [eos]
+    if self.reverse:
+      expected = list(reversed(expected))
     return expected
 
   def setUp(self):

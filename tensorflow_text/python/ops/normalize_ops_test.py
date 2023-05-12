@@ -208,10 +208,8 @@ class FindSourceOffsetsTest(parameterized.TestCase, test.TestCase):
     start = self.evaluate(start)
     end = self.evaluate(end)
     txt_input = txt_input.encode("utf-8")
-    for i in range(start.shape[1]):
-      pre_norm_start = int(start[0][i])
-      pre_norm_end = int(end[0][i])
-      extracted.append(txt_input[pre_norm_start:pre_norm_end])
+    extracted.extend(txt_input[int(start[0][i]):int(end[0][i])]
+                     for i in range(start.shape[1]))
     return extracted
 
   def test_one_string(self):

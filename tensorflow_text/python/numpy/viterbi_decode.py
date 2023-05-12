@@ -87,13 +87,10 @@ def _decode_in_log_space(score, transition_params, use_start_and_end_states):
     start_potentials = transition_params[-1, :-1]
     end_potentials = transition_params[:-1, -1]
     transition_potentials = transition_params[:-1, :-1]
+    trellis[0] = score[0] + start_potentials
   else:
     transition_potentials = transition_params
 
-  # Calculate the start value.
-  if use_start_and_end_states:
-    trellis[0] = score[0] + start_potentials
-  else:
     trellis[0] = score[0]
 
   # Calculate intermediate values.
@@ -110,8 +107,7 @@ def _decode_in_log_space(score, transition_params, use_start_and_end_states):
     final_scores = trellis[-1]
 
   viterbi = [np.argmax(final_scores)]
-  for bp in reversed(backpointers[1:]):
-    viterbi.append(bp[viterbi[-1]])
+  viterbi.extend(bp[viterbi[-1]] for bp in reversed(backpointers[1:]))
   viterbi.reverse()
 
   viterbi_score = np.max(final_scores)
@@ -131,13 +127,10 @@ def _decode_in_exp_space(score, transition_params, use_start_and_end_states):
     start_potentials = transition_params[-1, :-1]
     end_potentials = transition_params[:-1, -1]
     transition_potentials = transition_params[:-1, :-1]
+    trellis[0] = score[0] * start_potentials
   else:
     transition_potentials = transition_params
 
-  # Calculate the start value.
-  if use_start_and_end_states:
-    trellis[0] = score[0] * start_potentials
-  else:
     trellis[0] = score[0]
 
   max_scores[0] = np.max(trellis[0])
@@ -159,8 +152,7 @@ def _decode_in_exp_space(score, transition_params, use_start_and_end_states):
     final_scores = trellis[-1]
 
   viterbi = [np.argmax(final_scores)]
-  for bp in reversed(backpointers[1:]):
-    viterbi.append(bp[viterbi[-1]])
+  viterbi.extend(bp[viterbi[-1]] for bp in reversed(backpointers[1:]))
   viterbi.reverse()
 
   viterbi_score = np.max(final_scores) * np.prod(max_scores)

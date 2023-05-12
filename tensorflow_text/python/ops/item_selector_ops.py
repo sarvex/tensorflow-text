@@ -108,14 +108,11 @@ class ItemSelector(object):
     # merge to the desired axis
     input_ids = input_ids.merge_dims(1, axis) if axis > 1 else input_ids
 
-    all_selectable_flats = [
+    if all_selectable_flats := [
         ragged_functional_ops.map_flat_values(math_ops.not_equal, input_ids,
                                               i).flat_values
         for i in self._unselectable_ids
-    ]
-
-    # if there are no blacklisted ids, mark everything as selectable
-    if all_selectable_flats:
+    ]:
       reduce_flat = math_ops.reduce_all(all_selectable_flats, axis=0)
     else:
       reduce_flat = array_ops.ones_like(
